@@ -3,7 +3,7 @@ pipeline {
 
   tools {
     maven "M3"
-    fdk "JDK17"
+    jdk "JDK17"
   } 
 
   stages {
