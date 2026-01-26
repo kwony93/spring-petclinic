@@ -58,7 +58,16 @@ pipeline {
         """
       }
     }
-   
+
+    // Docker Image Remove
+    stage('Docker Image Remove') {
+      steps {
+        echo 'Docker Image Remove'
+        sh 'docker rmi -f spring-petclinic:$BUILD_NUMBER'
+      }
+    }
+
+
     
   }
 }
