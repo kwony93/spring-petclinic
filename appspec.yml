@@ -5,8 +5,8 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu
-    overwrite: yes                       //덮어쓰기 옵션
-files_exists_behavior: OVERWRITE         //덮어쓰기 옵션(혹시 안될 때 대비)
+    overwrite: yes                       #덮어쓰기 옵션
+files_exists_behavior: OVERWRITE         #덮어쓰기 옵션(혹시 안될 때 대비)
 
 # 실행 Directory 권한 설정
 permissions:
@@ -18,7 +18,7 @@ permissions:
 #
 hooks:
   ApplicationStop:
-    - location: scripts/kill_process.sh  //Container kill
+    - location: scripts/kill_process.sh  #Container kill
       timeout: 100
       runas: ubuntu
       
