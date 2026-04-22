@@ -74,13 +74,7 @@ pipeline {
         '''
       }
     }
-  }
-
-  post {
-    always {
-      sh 'rm -f scripts.zip || true'
-    }
-
+    
     stage('CodeDeploy') {
       steps {
         sh """
@@ -94,6 +88,12 @@ pipeline {
       }
     }
 
+  }
+
+  post {
+    always {
+      sh 'rm -f scripts.zip || true'
+    }
     
   }
 }
