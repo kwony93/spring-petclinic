@@ -7,16 +7,23 @@ pipeline {
   }
 
   stages {
-    stage('checkout 확인') {
+    stage('Git clone') {
       steps {
-        echo 'Jenkinsfile from SCM loaded successfully'
+        git url: 'https://github.com/kwony93/spring-petclinic.git/', branch: 'main'
       }
     }
 
-    stage('Build') {
+    stage('Maven Build') {
       steps {
-        sh 'mvn -v'
-        sh 'mvn clean package -DskipTests'
+        sh 'mvn -Dmaven.test.failure.ignore=true clean package'
+      }
+      post {
+        success {
+          echo 'Maven Build Success'
+        }
+        failure {
+          echo 'Maven Build Failed'
+        }
       }
     }
   }
