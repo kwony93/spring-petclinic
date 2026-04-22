@@ -7,6 +7,7 @@ pipeline {
   }
 
   environment {
+    REGION = 'ap-northeast-2'
     DOCKERHUB_CREDENTIALS = credentials('Docker-Creds')
   }
 
@@ -30,16 +31,16 @@ pipeline {
         }
       }
     }
-    
+
     stage('Docker Image Build') {
       steps {
         sh """
-          docker build -t aws-spring-petclinic:$BUILD_NUMBER .
-          docker tag aws-spring-petclinic:$BUILD_NUMBER hklee2748/aws-spring-petclinic:latest
+          docker build -t spring-petclinic:$BUILD_NUMBER .
+          docker tag spring-petclinic:$BUILD_NUMBER hklee2748/aws-spring-petclinic:latest
         """
       }
     }
-    
+
     stage('Docker Image Upload') {
       steps {
         sh """
@@ -49,6 +50,35 @@ pipeline {
       }
     }
 
-    
+    stage('Docker Image Remove') {
+      steps {
+        echo 'Docker Image Remove'
+        sh 'docker rmi -f spring-petclinic:$BUILD_NUMBER'
+      }
+    }
+
+    stage('Create Deployment Bundle') {
+      steps {
+        sh '''
+          rm -f scripts.zip
+          zip -r scripts.zip scripts appspec.yml
+          ls -lh scripts.zip
+        '''
+      }
+    }
+
+    stage('Upload to S3') {
+      steps {
+        sh '''
+          aws s3 cp scripts.zip s3://user03-codedeploy-bucket/scripts.zip --region ap-northeast-2
+        '''
+      }
+    }
+  }
+
+  post {
+    always {
+      sh 'rm -f scripts.zip || true'
+    }
   }
 }
