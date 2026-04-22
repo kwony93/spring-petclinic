@@ -80,5 +80,20 @@ pipeline {
     always {
       sh 'rm -f scripts.zip || true'
     }
+
+    stage('CodeDeploy') {
+      steps {
+        sh """
+        aws deploy create-deployment \
+          --application-name user03-code-deploy \
+          --deployment-group-name user03-deploy-group \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --s3-location bucket=user03-codedeploy-bucket,bundleType=zip,key=scripts.zip \
+          --region ap-northeast-2
+        """
+      }
+    }
+
+    
   }
 }
