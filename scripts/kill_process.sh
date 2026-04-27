@@ -1,3 +1,4 @@
 #!/bin/bash
-docker rmi *
-docker-compose -f /home/ubuntu/scripts/docker-compose.yml down || true
+cd /home/ubuntu/scripts
+docker-compose -f docker-compose.yml down || true
+docker rmi -f hklee2748/aws-spring-petclinic:latest || true
