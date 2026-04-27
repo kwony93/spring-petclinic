@@ -80,7 +80,7 @@ pipeline {
         sh """
         aws deploy create-deployment \
           --application-name user03-code-deploy \
-          --deployment-group-name user03-deploy-group \
+          --deployment-group-name user03-app-code-deploy \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --s3-location bucket=user03-codedeploy-bucket,bundleType=zip,key=scripts.zip \
           --region ap-northeast-2
