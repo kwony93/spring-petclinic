@@ -1,2 +1,2 @@
 #!/bin/bash
-docker compose -f scripts/docker-compose.yml down || true
+docker-compose -f /home/ubuntu/scripts/docker-compose.yml down || true
