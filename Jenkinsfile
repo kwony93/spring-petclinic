@@ -8,6 +8,7 @@ pipeline {
 
   environment {
     REGION = 'ap-northeast-2'
+    DOCKERHUB_USER = 'hklee2748' 
     DOCKERHUB_CREDENTIALS = credentials('Docker-Creds')
   }
 
@@ -22,38 +23,35 @@ pipeline {
       steps {
         sh 'mvn -Dmaven.test.failure.ignore=true clean package'
       }
-      post {
-        success {
-          echo 'Maven Build Success'
-        }
-        failure {
-          echo 'Maven Build Failed'
-        }
-      }
     }
 
     stage('Docker Image Build') {
       steps {
-        sh """
+        sh '''
           docker build -t spring-petclinic:$BUILD_NUMBER .
-          docker tag spring-petclinic:$BUILD_NUMBER hklee2748/aws-spring-petclinic:latest
-        """
+          docker tag spring-petclinic:$BUILD_NUMBER $DOCKERHUB_USER/aws-spring-petclinic:latest
+          docker tag spring-petclinic:$BUILD_NUMBER $DOCKERHUB_USER/aws-spring-petclinic:$BUILD_NUMBER
+        '''
       }
     }
 
     stage('Docker Image Upload') {
       steps {
-        sh """
+        sh '''
           echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-          docker push hklee2748/aws-spring-petclinic:latest
-        """
+          docker push $DOCKERHUB_USER/aws-spring-petclinic:latest
+          docker push $DOCKERHUB_USER/aws-spring-petclinic:$BUILD_NUMBER
+        '''
       }
     }
 
     stage('Docker Image Remove') {
       steps {
-        echo 'Docker Image Remove'
-        sh 'docker rmi -f spring-petclinic:$BUILD_NUMBER'
+        sh '''
+          docker rmi -f spring-petclinic:$BUILD_NUMBER
+          docker rmi -f $DOCKERHUB_USER/aws-spring-petclinic:latest
+          docker rmi -f $DOCKERHUB_USER/aws-spring-petclinic:$BUILD_NUMBER
+        '''
       }
     }
 
@@ -62,16 +60,13 @@ pipeline {
         sh '''
           rm -f scripts.zip
           zip -r scripts.zip scripts appspec.yml
-          ls -lh scripts.zip
         '''
       }
     }
 
     stage('Upload to S3') {
       steps {
-        sh '''
-          aws s3 cp scripts.zip s3://user03-codedeploy-bucket/scripts.zip --region ap-northeast-2
-        '''
+        sh "aws s3 cp scripts.zip s3://user03-codedeploy-bucket/scripts.zip --region $REGION"
       }
     }
     
@@ -83,17 +78,15 @@ pipeline {
           --deployment-group-name user03-app-code-deploy \
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --s3-location bucket=user03-codedeploy-bucket,bundleType=zip,key=scripts.zip \
-          --region ap-northeast-2
+          --region $REGION
         """
       }
     }
-
   }
 
   post {
     always {
       sh 'rm -f scripts.zip || true'
     }
-    
   }
 }
